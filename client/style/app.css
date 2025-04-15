@@ -1,0 +1,230 @@
+/* Общие стили для всего SPA приложения */
+:root {
+    /* Основные цвета */
+    --primary-color: #36a4e4; /* Основной цвет*/
+    --secondary-color: #f9ca24; /* Вторичный цвет для акцентов */
+    --background-color: #1e272e; /* Фон*/
+    --text-color: #ecf0f1; /* Цвет текста*/
+    --border-color: #26415c; /* Цвет границы*/
+    --border-radius: 8px; /* Скругление углов*/
+    --button-hover-color: #2980b9; /* Цвет кнопки при наведении */
+    
+    /* Статусы для комнаты */
+    --ready-color: #2ecc71; /* Зеленый цвет для статуса "готов" */
+    --not-ready-color: #e74c3c; /* Красный цвет для статуса "не готов" */
+    
+    /* Шрифты */
+    --main-font: 'Press Start 2P', monospace; /* Пиксельный шрифт для игрового стиля */
+    --fallback-font: 'Montserrat', Arial, sans-serif; /* Запасной шрифт */
+    --font-title-size: 32px; /* Размер шрифта для заголовков*/
+    --font-text-size: 16px; /* Размер шрифта для текста*/
+}
+
+/* Глобальное применение шрифта */
+html {
+    font-family: var(--main-font);
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    background-color: var(--background-color); /* Устанавливаем фон*/
+    background-image: url('../assets/main-menu.png'); /* Устанавливаем фон картинку из папки assets*/
+    background-size: cover; /* Устанавливаем размер фона cover - заполняет всю область, не нарушая пропорции*/
+    background-position: center; /* Устанавливаем позицию фона center - центрирует изображение*/
+    background-repeat: no-repeat; /* Устанавливаем повторение фона no-repeat - не повторяет изображение*/
+    color: var(--text-color); /* Устанавливаем цвет текста */
+    min-height: 100vh; /* Устанавливаем минимальную высоту*/
+    height: 100vh; /* Фиксированная высота для полноэкранного режима */
+    overflow: hidden; /* Устанавливаем overflow hidden - скрывает все, что выходит за пределы элемента*/
+    display: flex; /* Устанавливаем display flex - делает элемент контейнером и позволяет использовать flexbox*/
+    flex-direction: column; /* Устанавливаем flex-direction column - делает элементы контейнера вертикальной колонкой*/
+    justify-content: center; /* Центрирование содержимого по вертикали*/
+    align-items: center; /* Центрирование содержимого по горизонтали*/  
+}
+
+/* Базовые стили для всех элементов */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: inherit;
+}
+
+/* Контейнер приложения */
+#app-container {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    position: relative;
+}
+
+/* Загрузочный индикатор */
+#loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.spinner {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: 5px solid rgba(255, 255, 255, 0.3);
+    border-top-color: var(--primary-color);
+    animation: spin 1s infinite linear;
+}
+
+.loading-text {
+    margin-top: 15px;
+    font-size: 18px;
+    color: var(--text-color);
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Стили для ошибок */
+.error-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.error-message {
+    background-color: var(--error-color);
+    color: white;
+    padding: 20px;
+    border-radius: 5px;
+    max-width: 80%;
+    text-align: center;
+}
+
+.error-message h3 {
+    margin-top: 0;
+    margin-bottom: 10px;
+}
+
+.error-message button {
+    background-color: white;
+    color: var(--error-color);
+    border: none;
+    padding: 10px 20px;
+    margin-top: 15px;
+    border-radius: 3px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+.error-message button:hover {
+    background-color: #f0f0f0; /* Цвет кнопки при наведении */
+    transform: translateY(-2px); /* Легкое смещение кнопки при наведении */
+}
+
+.error-message button:active {
+    transform: translateY(0);
+}
+
+/* Общие стили для кнопок */
+button {
+    background-color: var(--primary-color); /* Основной цвет фона кнопки */
+    color: var(--text-color); /* Цвет текста кнопки */  
+    border: none; /* Убираем стандартную рамку */
+    border-radius: var(--border-radius); /* Скругление углов для современного вида */
+    padding: 12px 16px; /* Внутренние отступы для комфортного размера */
+    font-size: 16px; /* Размер шрифта */
+    font-weight: 600; /* Жирность шрифта для лучшей читаемости */
+    transition: all 0.3s ease; /* Плавные переходы для всех анимируемых свойств */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2); /* Тень для эффекта "подъема" */
+    user-select: none; /* Отключение выделения текста */
+    overflow: hidden; /* Поведение при переполнении */
+    text-align: center; /* Позиционирование текста */
+    text-transform: uppercase; /* Трансформация текста */
+    letter-spacing: 1.5px; /* Межбуквенное расстояние */
+    min-width: 120px; /* Минимальная ширина кнопки */
+    max-width: 150px; /* Максимальная ширина кнопки */
+    vertical-align: middle; /* Выравнивание по линии */
+    line-height: 1.5; /* Отступ между строками */
+    text-overflow: ellipsis; /* Обрезка текста при переполнении */
+    white-space: nowrap; /* Запрет переноса текста */
+    opacity: 1; /* Прозрачность */
+    z-index: 1; /* Порядок слоев */
+    position: relative; /* Положение относительно других элементов */
+}
+
+/* Кнопка при нажатии */
+button:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Анимации для переключения экранов */
+.screen-transition-enter {
+    opacity: 0;
+    transform: translateY(20px);
+}
+
+.screen-transition-enter-active {
+    opacity: 1;
+    transform: translateY(0);
+    transition: opacity 0.3s, transform 0.3s;
+}
+
+.screen-transition-exit {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.screen-transition-exit-active {
+    opacity: 0;
+    transform: translateY(-20px);
+    transition: opacity 0.3s, transform 0.3s;
+}
+
+/* Адаптивный дизайн */
+@media (max-width: 768px) {
+    button {
+        padding: 10px 20px;
+        font-size: 14px;
+    }
+    
+    .error-message {
+        padding: 15px;
+        max-width: 90%;
+    }
+}
+
+/* Скрытие загрузочного экрана при загрузке приложения */
+.app-loaded #loading-overlay {
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.5s, visibility 0.5s;
+}
+
+/* Скрыть загрузочный экран по умолчанию в режиме разработки */
+.dev-mode #loading-overlay {
+    display: none;
+}
+
+/* Анимация скрытия загрузочного экрана */
+#loading-overlay.loaded {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s ease-out;
+} 
