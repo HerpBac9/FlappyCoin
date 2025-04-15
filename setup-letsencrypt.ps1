@@ -47,12 +47,13 @@ Write-Host "Do you want to proceed with Let's Encrypt certificate generation? (Y
 $proceed = Read-Host
 
 if ($proceed -eq "Y" -or $proceed -eq "y") {
-    # Use Certbot in Docker to obtain certificates
-    Write-Host "Running Certbot to obtain certificates..."
+    # Use Certbot in Docker to obtain certificates using standalone authenticator
+    Write-Host "Running Certbot in standalone mode to obtain certificates..."
+    Write-Host "Ensure port 80 is free locally and forwarded from your router."
     docker run -it --rm `
-        -v "${PWD}/acme-challenge:/var/www/certbot/.well-known/acme-challenge" `
+        -p 80:80 `
         -v "${PWD}/ssl:/etc/letsencrypt" `
-        certbot/certbot certonly --webroot --webroot-path=/var/www/certbot `
+        certbot/certbot certonly --standalone `
         -d $DOMAIN --email $EMAIL --agree-tos --no-eff-email
 
     # Check if certificates were successfully obtained
@@ -60,14 +61,19 @@ if ($proceed -eq "Y" -or $proceed -eq "y") {
         Write-Host "Let's Encrypt certificates successfully obtained!"
         Write-Host "Certificate files are located in ssl/live/$DOMAIN/"
         
-        # List the certificate files
-        Write-Host "Certificate files:"
-        Get-ChildItem -Path "ssl/live/$DOMAIN" | Format-Table Name, Length, LastWriteTime
-        
-        # Update Nginx configuration if needed
-        Write-Host "Don't forget to update your Nginx configuration to use these certificates:"
-        Write-Host "SSL certificate: /etc/letsencrypt/live/$DOMAIN/fullchain.pem"
-        Write-Host "SSL key: /etc/letsencrypt/live/$DOMAIN/privkey.pem"
+        # Copy certificate content to the root ssl directory using docker run cat to bypass permissions issues
+        Write-Host "Copying certificate content to ssl/key.pem and ssl/cert.pem..."
+        docker run --rm -v "${PWD}/ssl:/mnt/ssl" alpine cat /mnt/ssl/live/$DOMAIN/privkey.pem | Set-Content -Path "ssl/key.pem" -Force -Encoding ascii
+        docker run --rm -v "${PWD}/ssl:/mnt/ssl" alpine cat /mnt/ssl/live/$DOMAIN/fullchain.pem | Set-Content -Path "ssl/cert.pem" -Force -Encoding ascii
+        Write-Host "Certificate content copied successfully."
+
+        # List the copied certificate files in the root
+        Write-Host "Copied certificate files in ssl/:"
+        Get-ChildItem -Path "ssl" -Filter "*.pem" | Format-Table Name, Length, LastWriteTime
+
+        # Don't forget to update your Nginx configuration to use these certificates: # Удалено
+        # Write-Host "SSL certificate: /etc/letsencrypt/live/$DOMAIN/fullchain.pem" # Удалено
+        # Write-Host "SSL key: /etc/letsencrypt/live/$DOMAIN/privkey.pem" # Удалено
     } else {
         Write-Host "Error: Certificates were not generated. Check the output above for errors."
         Write-Host "Using self-signed certificates for now. You can try again later."
@@ -84,24 +90,16 @@ if ($proceed -eq "Y" -or $proceed -eq "y") {
 Write-Host "Checking docker-compose.yml for SSL configuration..."
 
 if (Test-Path "docker-compose.yml") {
-    $dockerCompose = Get-Content -Path "docker-compose.yml" -Raw
-    
-    # Check if SSL configuration is already present
-    if ($dockerCompose -match "443:443") {
-        Write-Host "docker-compose.yml already contains SSL configuration"
-    } else {
-        Write-Host "You need to update docker-compose.yml to include SSL configuration"
-        Write-Host "Example configuration for Nginx service:"
-        Write-Host "  nginx:"
-        Write-Host "    ports:"
-        Write-Host "      - 80:80"
-        Write-Host "      - 443:443"
-        Write-Host "    volumes:"
-        Write-Host "      - ./ssl:/etc/nginx/ssl"
-        Write-Host "      - ./acme-challenge:/var/www/html/.well-known/acme-challenge"
-    }
+    # Убрана ненужная проверка и пример для Nginx, т.к. он не используется
+    # $dockerCompose = Get-Content -Path "docker-compose.yml" -Raw
+    # if ($dockerCompose -match "443:443") {
+    #     Write-Host "docker-compose.yml already contains SSL configuration for port 443"
+    # } else {
+    #     Write-Host "Warning: docker-compose.yml does not seem to map port 443. Ensure your 'app' service exposes and maps port 443."
+    # }
+    Write-Host "docker-compose.yml found. Ensure your 'app' service maps port 443 and mounts the 'ssl' volume to '/app/ssl'."
 } else {
-    Write-Host "Warning: docker-compose.yml not found. Make sure to create it with proper SSL configuration."
+    Write-Host "Warning: docker-compose.yml not found. Make sure to create it with proper SSL configuration for the 'app' service."
 }
 
 Write-Host "Done! Your SSL certificates are set up." 
