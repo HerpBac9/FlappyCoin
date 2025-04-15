@@ -442,7 +442,7 @@ app.get('/api/user/:id', (req, res) => {
 });
 
 // Обработчик для получения логов от клиента
-app.post('/api/log', (req, res) => {
+app.post('/api/log', async (req, res) => {
     try {
         const logsData = req.body;
         
@@ -455,7 +455,7 @@ app.post('/api/log', (req, res) => {
         const timestamp = logsData.timestamp || new Date().toISOString();
         const userData = logsData.userData || {};
         
-        // Логируем на сервере
+        // Логируем на сервере (оставляем для отладки)
         console.log('Получены логи от клиента:');
         console.log(`Пользователь: ${userData.username || 'Неизвестно'} (${userData.id || 'Нет ID'})`);
         console.log(`Всего логов: ${logsData.logs.length}`);
@@ -475,7 +475,46 @@ app.post('/api/log', (req, res) => {
         }
         
         // Здесь можно добавить сохранение логов в базу данных или файл
-        
+        // --- Начало добавленного кода сохранения логов --- 
+        try {
+            const logDir = process.env.LOG_DIR || './server/logs';
+            const logDate = new Date().toISOString().split('T')[0]; // Формат YYYY-MM-DD
+            const logFileName = `client-logs-${logDate}.log`;
+            const logFilePath = path.join(logDir, logFileName);
+
+            // Убедимся, что директория существует
+            await fs.ensureDir(logDir);
+
+            // Форматируем логи для записи
+            let logContent = `--- Log Batch Start: ${new Date(timestamp).toLocaleString()} ---\n`;
+            logContent += `User: ${userData.username || 'Unknown'} (ID: ${userData.id || 'N/A'})\n`;
+            logContent += `User Agent: ${userAgent}\n`;
+            logContent += `App Version: ${logsData.appVersion || 'N/A'}\n`;
+            logContent += `Logs Count: ${logsData.logs.length}\n`;
+            logContent += `---\n`;
+
+            logsData.logs.forEach(log => {
+                logContent += `[${new Date(log.timestamp).toLocaleString()}] [${log.level.toUpperCase()}] ${log.caller ? '('+log.caller+')' : ''} ${log.message}\n`;
+                if (log.data) {
+                    try {
+                        logContent += `  Data: ${JSON.stringify(log.data, null, 2)}\n`;
+                    } catch (e) {
+                        logContent += `  Data: [Не удалось сериализовать данные]\n`;
+                    }
+                }
+            });
+            logContent += `--- Log Batch End ---\n\n`;
+
+            // Записываем (перезаписываем) в файл
+            await fs.writeFile(logFilePath, logContent);
+            console.log(`Клиентские логи сохранены в файл (перезаписан): ${logFilePath}`);
+
+        } catch (writeError) {
+            console.error('Ошибка при записи клиентских логов в файл:', writeError);
+            // Не прерываем выполнение, просто логируем ошибку записи
+        }
+        // --- Конец добавленного кода сохранения логов --- 
+
         return res.json({ success: true });
     } catch (error) {
         console.error('Ошибка при обработке логов:', error);

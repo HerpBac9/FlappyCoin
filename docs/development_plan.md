@@ -24,8 +24,8 @@
 ❗️ **Сервер: Логика игры**
    * Проверить/создать файл `server/game.js` для вынесения игровой логики согласно `architecture.md`.
 
-❗️ **Документация: `architecture.md`**
-   * Обновить пути к файлам (`scripts/`, `docs/`) и описания в `docs/architecture.md`.
+✅ **Документация: `architecture.md`**
+   * Обновлены пути к файлам (`scripts/`, `docs/`) и описания в `docs/architecture.md`.
 
 ❗️ **Клиент: Передача `initData`**
    * Изменить клиентский код (вероятно, в `services/socketService.js` или `telegram.js`), чтобы он отправлял полную строку `initData` на сервер при событии `join`, а не только распарсенные `userData`.

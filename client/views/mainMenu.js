@@ -9,6 +9,7 @@
     let userData = null;
     let container = null;
     let roomCreatedHandler = null;
+    let roomJoinedHandler = null;
 
     /**
      * Инициализирует компонент главного меню
@@ -294,11 +295,12 @@
      * Регистрирует обработчики событий сокета
      */
     function registerSocketHandlers() {
+        // Обработчик создания комнаты
         roomCreatedHandler = handleRoomCreated;
         socketService.on('roomCreated', roomCreatedHandler);
         
-        // Добавляем обработчик для события присоединения к существующей комнате
-        socketService.on('roomJoined', function(data) {
+        // Обработчик присоединения к существующей комнате (выносим в именованную функцию)
+        roomJoinedHandler = function handleExistingRoomJoined(data) {
             if (data && data.roomId) {
                 appLogger.info('Присоединился к существующей комнате', { roomId: data.roomId });
                 
@@ -310,49 +312,35 @@
                 localStorage.setItem('lastRoomId', data.roomId);
                 
                 try {
-                    // Очищаем текущие обработчики перед переходом на экран комнаты
-                    cleanupMainMenu();
+                    // Очищаем ресурсы главного меню ПЕРЕД переходом
+                    cleanupMainMenu(); 
+
+                    // Показываем индикатор загрузки перед переходом
+                    showLoadingOverlay(); 
                     
-                    // Явно скрываем главное меню перед показом комнаты
-                    const mainMenu = document.getElementById('main-menu');
-                    if (mainMenu) {
-                        mainMenu.style.display = 'none';
-                    }
-                    
-                    // Явно показываем экран комнаты
-                    const roomScreen = document.getElementById('room');
-                    if (roomScreen) {
-                        roomScreen.style.display = 'block';
-                    }
-                    
-                    // Задержка на короткое время, чтобы DOM успел обновиться
-                    setTimeout(() => {
-                        // Переходим на экран комнаты с явным указанием всех параметров
-                        app.showScreen('room', { 
-                            roomId: data.roomId,
-                            room: data.room,
-                            showImmediately: true
-                        });
+                    // Переходим на экран комнаты
+                    // Убрал задержку, app.showScreen должен сам корректно переключить
+                    app.showScreen('room', { 
+                        roomId: data.roomId,
+                        room: data.room // Передаем данные комнаты для инициализации
+                    });
                         
-                        appLogger.info('Переключение на экран комнаты выполнено', { roomId: data.roomId });
-                    }, 50);
+                    appLogger.info('Переключение на экран комнаты выполнено', { roomId: data.roomId });
+
                 } catch (error) {
                     appLogger.error('Ошибка при переключении на экран комнаты', { 
                         error: error.message,
                         roomId: data.roomId
                     });
-                    
                     console.error('Детали ошибки:', error);
-                    
-                    // В случае ошибки пытаемся показать экран напрямую через более длительную задержку
-                    setTimeout(() => {
-                        app.showScreen('room', { roomId: data.roomId, showImmediately: true });
-                    }, 500);
+                    // Можно показать ошибку пользователю
+                    window.app.showError('Ошибка при входе в комнату. Попробуйте снова.');
                 }
             } else {
                 appLogger.error('Получены некорректные данные в событии roomJoined', data);
             }
-        });
+        };
+        socketService.on('roomJoined', roomJoinedHandler);
     }
 
     /**
@@ -364,8 +352,11 @@
             roomCreatedHandler = null;
         }
         
-        // Удаляем обработчик присоединения к комнате
-        socketService.off('roomJoined');
+        // Удаляем конкретный обработчик присоединения к комнате
+        if (roomJoinedHandler) {
+            socketService.off('roomJoined', roomJoinedHandler);
+            roomJoinedHandler = null;
+        }
     }
 
     // Экспортируем компонент в глобальное пространство имен

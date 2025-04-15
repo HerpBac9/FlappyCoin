@@ -15,16 +15,27 @@ const Logger = {
      */
     init() {
         // Загружаем логи из localStorage, если они существуют
+        let loadedLogsCount = 0;
         try {
             const storedLogs = localStorage.getItem(LOG_STORAGE_KEY);
             if (storedLogs) {
                 this.logs = JSON.parse(storedLogs);
-                console.log(`Загружено ${this.logs.length} ранее сохраненных логов`);
+                loadedLogsCount = this.logs.length;
+                console.log(`Загружено ${loadedLogsCount} ранее сохраненных логов из localStorage.`);
+            } else {
+                this.logs = []; // Если нет сохраненных, начинаем с пустого массива
             }
         } catch (error) {
             console.error('Ошибка при загрузке логов из localStorage:', error);
+            this.logs = []; // Начинаем с чистого листа при ошибке загрузки
         }
         
+        // ---- ОЧИСТКА СРАЗУ ПОСЛЕ ЗАГРУЗКИ/ИНИЦИАЛИЗАЦИИ МАССИВА ----
+        this.logs = []; // Очищаем массив в памяти
+        localStorage.removeItem(LOG_STORAGE_KEY); // Очищаем хранилище
+        console.log(`Логи очищены при инициализации логгера (в памяти и localStorage). Загружено/инициализировано было: ${loadedLogsCount} записей.`);
+        // ---- КОНЕЦ ОЧИСТКИ ----
+
         // Создаем UI для просмотра логов
         this.createLogUI();
         
@@ -339,14 +350,6 @@ const Logger = {
     },
     
     /**
-     * Очистка логов
-     */
-    clearLogs() {
-        this.logs = [];
-        this.saveLogs();
-    },
-    
-    /**
      * Получение информации о вызывающей функции
      * @returns {string} Строка с информацией о вызывающей функции
      */
@@ -445,6 +448,12 @@ const Logger = {
         const logContent = document.getElementById('log-content');
         if (!logContent) return;
         
+        // --- Добавленный лог перед отправкой ---
+        const currentLogsCount = this.logs.length;
+        const firstLogTimestamp = currentLogsCount > 0 ? this.logs[0].timestamp : 'N/A';
+        console.log(`Подготовка к отправке логов. В массиве ${currentLogsCount} записей. Первая метка: ${firstLogTimestamp}`);
+        // --- Конец добавленного лога ---
+
         // Показываем статус отправки
         const previousContent = logContent.innerHTML;
         logContent.innerHTML = '<div style="text-align: center; padding: 20px;">Отправка логов на сервер...</div>';
@@ -636,34 +645,10 @@ const appLogger = {
 // Инициализируем логгер при загрузке скрипта
 Logger.init();
 
-// Экспортируем для использования в других файлах
+// Экспортируем ДЛЯ ИСПОЛЬЗОВАНИЯ В ДРУГИХ ФАЙЛАХ правильный объект appLogger
 window.appLogger = appLogger;
+console.log('%c[Logger] window.appLogger определен:', 'color: green; font-weight: bold;', window.appLogger);
 
 /**
  * Безопасно вызывает метод Telegram WebApp API с проверкой его существования
- * @param {Object} tgApp - Объект Telegram WebApp
- * @param {string} methodName - Имя метода для вызова
- * @param {Array} args - Аргументы для метода
- * @returns {*} Результат вызова метода или null при ошибке
  */
-function safeCallTgMethod(tgApp, methodName, args = []) {
-    try {
-        if (!tgApp) {
-            appLogger.warn(`Telegram WebApp API не доступен`);
-            return null;
-        }
-        
-        if (typeof tgApp[methodName] !== 'function') {
-            appLogger.warn(`Метод ${methodName} не существует в Telegram WebApp API`);
-            return null;
-        }
-        
-        return tgApp[methodName](...args);
-    } catch (error) {
-        appLogger.error(`Ошибка при вызове метода ${methodName}`, { error: error.message });
-        return null;
-    }
-}
-
-// Экспортируем для использования в других файлах
-window.safeCallTgMethod = safeCallTgMethod; 

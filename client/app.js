@@ -31,6 +31,15 @@ const screens = {
  * Инициализирует приложение
  */
 function initApp() {
+    // УДАЛЯЕМ ОЧИСТКУ ЛОГОВ ОТСЮДА, она теперь в Logger.init()
+    /*
+    if (window.appLogger && typeof window.appLogger.clearLogs === 'function') {
+        window.appLogger.clearLogs();
+        localStorage.removeItem('flappyCoin_logs'); 
+        console.log('Хранилище логов localStorage очищено.');
+    }
+    */
+
     appLogger.info('Инициализация приложения FlappyCoin');
     
     try {
@@ -364,38 +373,37 @@ window.app = {
     showError: showError,
     getState: () => ({ ...appState })
 };
+console.log('%c[App] window.app определен:', 'color: blue; font-weight: bold;', window.app);
 
-// Добавляем обработчик для инициализации после полной загрузки DOM
-document.addEventListener('DOMContentLoaded', function() {
-    appLogger.info('DOM загружен, инициализация FlappyCoin...');
-    
-    // Инициализировать приложение
-    if (typeof app !== 'undefined' && typeof app.init === 'function') {
+// УДАЛЕН БЛОК DOMContentLoaded
+
+// ИНИЦИАЛИЗИРУЕМ ПРИЛОЖЕНИЕ ЧЕРЕЗ setTimeout, чтобы гарантировать,
+// что все скрипты успели выполниться и определить глобальные переменные.
+setTimeout(() => {
+    // Дополнительная отладка
+    console.log('%c[App Init Timeout] Проверка перед if:', 'color: orange; font-weight: bold;');
+    console.log('[App Init Timeout] typeof window.appLogger:', typeof window.appLogger, window.appLogger);
+    console.log('[App Init Timeout] typeof window.app:', typeof window.app, window.app);
+    console.log('[App Init Timeout] typeof window.app.init:', typeof window.app?.init);
+
+    if (typeof app !== 'undefined' && typeof app.init === 'function' && typeof appLogger !== 'undefined') {
+        appLogger.info('Запуск инициализации приложения (через setTimeout)...');
         app.init();
-        appLogger.info('Приложение инициализировано');
+        appLogger.info('Инициализация приложения завершена.');
     } else {
-        appLogger.error('Объект app не найден или не содержит метод init');
-        
-        // Показываем сообщение об ошибке
+        // Если что-то пошло не так до этого момента
+        console.error('КРИТИЧЕСКАЯ ОШИБКА (setTimeout): Не удалось определить app или appLogger перед инициализацией!');
+        // Можно показать сообщение об ошибке пользователю напрямую
         const container = document.getElementById('app-container');
         if (container) {
             container.innerHTML = `
                 <div class="error-message" style="padding:20px;color:white;background-color:#f44336;margin:20px;border-radius:5px;text-align:center;">
                     <h3>Ошибка инициализации</h3>
-                    <p>Не удалось инициализировать приложение. Попробуйте обновить страницу.</p>
+                    <p>Не удалось инициализировать приложение (ошибка загрузки скриптов). Попробуйте обновить страницу.</p>
                 </div>
             `;
         }
     }
-    
-    // Скрываем загрузочный индикатор после инициализации
-    setTimeout(() => {
-        const loadingOverlay = document.getElementById('loading-overlay');
-        if (loadingOverlay) {
-            loadingOverlay.classList.add('loaded');
-            setTimeout(() => {
-                loadingOverlay.style.display = 'none';
-            }, 500);
-        }
-    }, 1000);
-}); 
+}, 0); // Нулевая задержка
+
+// Конец файла app.js 
