@@ -1,0 +1,297 @@
+//- Определяем тип документа как HTML5
+doctype html
+html
+  //- Начало блока head - содержит метаданные, скрипты и стили
+  head
+    //- Подключаем сокеты для взаимодействия с сервером в реальном времени
+    script(type='text/javascript', src=wsAddress + '/socket.io/socket.io.js')
+    //- Подключаем API Telegram Web App для интеграции с Telegram
+    script(src="https://telegram.org/js/telegram-web-app.js")
+    //- Подключаем иконку для вкладки браузера
+    link(href="/images/favicon.ico", rel="icon", type="image/ico")
+    //- Указываем кодировку документа
+    meta(charset='utf-8')
+    //- Настраиваем viewport для адаптивного отображения на мобильных устройствах
+    meta(name="viewport", content="width=device-width, initial-scale=1.0")
+    //- Задаем заголовок страницы
+    title Flappy coin
+    //- Подключаем основные стили приложения
+    link(href="stylesheets/app.css", media="screen", rel="stylesheet", type="text/css")
+    //- Подключаем модульный загрузчик с точкой входа в игровой движок
+    script(data-main="javascripts/game/gameEngine", src="javascripts/lib/require.min.js")
+    //- Начало блока встроенных стилей
+    style.
+      /* Стили для страницы логина - черный фон, центрирование контента */
+      .login-page {
+        position: fixed; /* Фиксированное позиционирование на весь экран */
+        top: 0; /* отступ от верхнего края экрана */
+        left: 0; /* отступ от левого края экрана */
+        width: 100%; /* ширина экрана */
+        height: 100%; /* высота экрана */
+        background-color:rgb(0, 0, 0); /* Черный фон */
+        display: flex; /* Используем flex для центрирования */
+        flex-direction: column; /* Вертикальное расположение элементов */ 
+        justify-content: center; /* Центрирование по вертикали */
+        align-items: center; /* Центрирование по горизонтали */
+        z-index: 1000; /* Высокий z-index чтобы быть поверх других элементов */
+      }
+      
+      /* Стили для главного меню - фоновое изображение, скрыто по умолчанию */
+      .mainMenu-page {
+        position: fixed; /* Фиксированное позиционирование на весь экран */
+        top: 0; /* отступ от верхнего края экрана */
+        left: 0; /* отступ от левого края экрана */
+        width: 100%; /* ширина экрана */
+        height: 100%; /* высота экрана */
+        background-color: #000; /* Черный фон */
+        background-image: url('/images/main-menu.png'); /* Фоновое изображение */
+        background-size: cover; /* Растягивание фона на весь экран */
+        background-position: center; /* Центрирование фона */
+        display: none; /* По умолчанию скрыто */
+        flex-direction: column; /* Вертикальное расположение элементов */
+        align-items: center; /* Центрирование по горизонтали */
+        z-index: 1000; /* Высокий z-index чтобы быть поверх других элементов */
+      }
+      
+      /* Игровой экран скрыт по умолчанию */
+      #gameScreen {
+        display: none; /* По умолчанию скрыто */  
+      }
+      
+      /* Контейнер для формы входа - расположен внизу экрана */
+      .login-container {
+        position: absolute; /* Абсолютное позиционирование */
+        bottom: 20%; /* 20% от нижнего края экрана */
+        padding: 2rem; /* Отступы внутри контейнера */
+        width: 100%; /* Ширина контейнера */
+        max-width: 400px; /* Максимальная ширина контейнера */
+        text-align: center; /* Центрирование текста */
+        display: flex; /* Используем flex для вертикального расположения элементов */
+        flex-direction: column; /* Вертикальное расположение элементов */
+        align-items: center; /* Центрирование по горизонтали */
+      }
+      
+      /* Заголовок главного меню - расположен вверху экрана */
+      .mainMenu-title {
+        position: absolute; /* Абсолютное позиционирование */ 
+        top: 15%; /* 15% от верхнего края экрана */
+        width: 100%; /* Ширина контейнера */
+        text-align: center; /* Центрирование текста */
+      }
+      
+      /* Стиль для текста заголовка */
+      .mainMenu-title h1 {
+        color: white; /* Белый цвет текста */
+        font-size: 32px;
+        margin: 0;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); /* Тень для лучшей читаемости */
+      }
+      
+      /* Контейнер для кнопки PLAY - расположен в нижней части экрана */
+      .play-button-container {
+        position: absolute; /* Абсолютное позиционирование */
+        bottom: 20%; /* Располагаем кнопку внизу, 20% от нижнего края экрана */
+        width: 100%; /* Ширина контейнера */
+        display: flex; /* Используем flex для вертикального расположения элементов */
+        justify-content: center; /* Центрируем по горизонтали */
+      }
+      
+      /* Контейнер для птички - располагаем выше кнопки PLAY */
+      .bird-container {
+        position: absolute; /* Абсолютное позиционирование */ 
+        top: 10%; /* Располагаем птичку выше, 40% от верхнего края экрана */
+        width: 100%; /* Ширина контейнера */
+        display: flex; /* Используем flex для вертикального расположения элементов */
+        justify-content: center; /* Центрируем по горизонтали */
+      }
+      
+      /* Стили для поля ввода имени пользователя */
+      #login-name {
+        width: 150px; /* Ширина поля ввода */
+        padding: 12px; /* Отступы внутри поля ввода */
+        background:rgba(255, 255, 255, 0); /* Прозрачный фон */
+        margin-bottom: 1rem; /* Отступ снизу */
+        border: 2px solid #333; /* Синяя граница */
+        background: #111; /* Черный фон */
+        color: white; /* Белый текст */
+        border-color: rgb(0, 162, 255); /* Синяя граница */
+        border-radius: 5px; /* Скругление углов */
+        font-size: 20px; /* Размер шрифта */
+        box-sizing: border-box; /* Учитываем границы и отступы */
+      }
+      
+      /* Общие стили для кнопок Login и PLAY */
+      #login-button, #play-button {
+        width: 150px; /* Ширина кнопки */
+        padding: 12px; /* Отступы внутри кнопки */
+        background:rgb(0, 162, 255); /* Синий фон кнопки */
+        color: white; /* Белый текст */
+        border: none; /* Убираем границу */
+        border-color: rgb(0, 162, 255); /* Синяя граница */
+        border-radius: 5px; /* Скругление углов */
+        cursor: pointer; /* Курсор-указатель при наведении */
+        font-size: 20px; /* Размер шрифта */
+        box-sizing: border-box; /* Учитываем границы и отступы */     
+      }
+      
+      /* Стили при наведении на кнопки */
+      #login-button:hover, #play-button:hover {
+        background: #444; /* Темно-серый фон при наведении */
+      }
+      
+      /* Стили для контейнера анимации птички */
+      #gs-loader-anim-box {
+        display: block;
+        margin: 0 auto; /* Центрирование блока */
+      }
+    
+    //- Блок JavaScript для обработки событий на странице
+    script.
+      document.addEventListener('DOMContentLoaded', function() {
+        // Проверка наличия Telegram WebApp
+        let tgUser = null;
+        if (window.Telegram && window.Telegram.WebApp) {
+          const tgApp = window.Telegram.WebApp;
+          tgApp.expand(); // Разворачиваем Web App на весь экран
+          
+          if (tgApp.initDataUnsafe && tgApp.initDataUnsafe.user) {
+            tgUser = tgApp.initDataUnsafe.user;
+            
+            // Если есть пользователь Telegram, установим его имя в поле ввода
+            const loginNameField = document.getElementById('login-name');
+            if (loginNameField && tgUser.username) {
+              loginNameField.value = tgUser.username;
+            }
+          }
+        }
+        
+        // Обработчик нажатия на кнопку Login
+        document.getElementById('login-button').addEventListener('click', function() {
+          // Сохраняем данные пользователя на сервере только при нажатии кнопки Login
+          if (tgUser) {
+            fetch('/saveTelegramUser', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                telegramId: tgUser.id,
+                username: tgUser.username || document.getElementById('login-name').value,
+                language: tgUser.language_code || 'en'
+              })
+            });
+          }
+          
+          // Скрываем страницу логина и показываем главное меню
+          document.querySelector('.login-page').style.display = 'none';
+          document.querySelector('.mainMenu-page').style.display = 'flex';
+        });
+        
+        // Обработчик нажатия на кнопку PLAY
+        document.getElementById('play-button').addEventListener('click', function() {
+          console.log("Play button clicked");
+          
+          // Сохраняем никнейм в сессию
+          const loginName = document.getElementById('login-name').value;
+          if (loginName && loginName !== 'Player_1') {
+            if (typeof sessionStorage !== 'undefined') {
+              sessionStorage.setItem('playerName', loginName);
+              console.log("Saved player name to session:", loginName);
+            }
+          }
+          
+          // Предотвращаем множественные нажатия на кнопку
+          const playButton = document.getElementById('play-button');
+          playButton.disabled = true;
+          playButton.value = "STARTING...";
+          
+          try {
+            // Запускаем игру через глобальную функцию startGame
+            console.log("Calling startGame function");
+            if (typeof window.startGame === 'function') {
+              // Явно скрываем все меню и показываем игровой экран
+              document.querySelector('.login-page').style.display = 'none';
+              document.querySelector('.mainMenu-page').style.display = 'none';
+              document.getElementById('gameScreen').style.display = 'block';
+              
+              // Затем вызываем функцию startGame
+              window.startGame();
+            } else {
+              throw new Error("startGame function not found");
+            }
+          } catch (error) {
+            console.error("Error starting game:", error);
+            // В случае ошибки разблокируем кнопку
+            playButton.disabled = false;
+            playButton.value = "PLAY";
+            
+            // Показываем сообщение об ошибке
+            alert("Error starting game: " + error.message);
+          }
+        });
+      });
+
+  //- Начало тела документа
+  body
+    //- Основной контейнер игры, скрыт по умолчанию
+    #gameScreen
+      //- Информационная панель для подсказок
+      #gs-info-panel
+        | To fly, press your 
+        strong space bar
+        |  !
+      
+      //- Канвас для отрисовки игры
+      canvas#gs-canvas(width="900", height="768")
+      
+      //- Панель загрузки игры
+      #gs-loader.inGamePanel.overlay
+        h2#gs-loader-text Welcome to Birds.js !
+      
+      //- Панель логина в игре
+      #gs-login.inGamePanel
+        h1 Flappy coin
+      
+      //- Панель с результатами игры
+      #gs-ranking.inGamePanel
+        h1#gs-ranking-title Game Over
+        #gs-ranking-box
+          .gs-ranking-panel
+            h3 Medal
+            .gs-ranking-medal
+            strong#gs-ranking-pos.gs-ranking-text.gs-ranking-text-mini - / -
+          .gs-ranking-panel
+            h3 Score
+            strong#gs-ranking-score.gs-ranking-text -
+            h3 Best
+            strong#gs-ranking-best.gs-ranking-text -
+      
+      //- Панель с рекордами
+      #gs-highscores.inGamePanel
+        h1#gs-highscores-title High Scores
+        #gs-highscores-box
+          ul#gs-highscores-scores
+      
+      //- Панель с сообщением об ошибке
+      #gs-error.inGamePanel
+        h1#gs-error-title Ouuuuuups :(
+        h2#gs-error-message Something goes wrong. Please reload the page
+
+    //- Страница логина
+    .login-page
+      .login-container
+        input#login-name(type="text", maxlength="8", value="Player_1")
+        input#login-button(type="button", value="Login")
+
+    //- Страница главного меню
+    .mainMenu-page
+      //- Заголовок вверху экрана
+      .mainMenu-title
+        h1 Flappy Coin
+      //- Контейнер для птички - ВЫШЕ кнопки PLAY
+      .bird-container
+        #gs-loader-anim-box
+          #gs-loader-anim-bird
+      //- Контейнер для кнопки PLAY - НИЖЕ птички
+      .play-button-container
+        input#play-button(type="button", value="PLAY")

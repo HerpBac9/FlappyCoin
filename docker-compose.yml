@@ -1,24 +1,38 @@
-version: '3'
+version: '3.8'
 
 services:
-  # Только основное приложение FlappyCoin
   app:
-    build:
+    build: 
       context: .
       dockerfile: Dockerfile
-    restart: always
+    ports:
+      - "443:443"
+    volumes:
+      - ./ssl:/app/ssl:ro
     environment:
       - NODE_ENV=production
-    volumes:
-      - .:/app
-      - /app/node_modules
-      - ./ssl:/app/ssl:ro  # Монтируем сертификаты напрямую
-    ports:
-      - "80:80"
-      - "443:443"
-    networks:
-      - flappycoin-network
+      - DB_HOST=mysql
+      - DB_USER=root
+      - DB_PASSWORD=your_root_password
+      - DB_DATABASE=birds
+    depends_on:
+      - mysql
+    restart: unless-stopped
 
-networks:
-  flappycoin-network:
-    driver: bridge
+  mysql:
+    image: mysql:5.7
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_ROOT_PASSWORD: your_root_password
+      MYSQL_DATABASE: birds
+      MYSQL_USER: birds_user
+      MYSQL_PASSWORD: birds_password
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./birds.sql:/docker-entrypoint-initdb.d/birds.sql:ro
+    ports:
+      - "3306:3306"
+    restart: unless-stopped
+
+volumes:
+  mysql_data: 

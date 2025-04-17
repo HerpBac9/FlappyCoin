@@ -1,19 +1,7 @@
-# Игнорировать системные файлы
-.git
-.github
-.gitignore
-**/.DS_Store
-
-# Игнорировать лог-файлы
-**/*.log
-
-# Игнорировать директорию node_modules
 node_modules
-
-# Скрипты PowerShell
-*.ps1
-
-# Игнорировать SSL-сертификаты
-ssl/cert.pem
-ssl/key.pem
-ssl/live 
+npm-debug.log
+.git
+.gitignore
+.env
+*.md
+.DS_Store 

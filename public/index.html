@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <!-- Подключаем сокеты для взаимодействия с сервером в реальном времени -->
+  <script type="text/javascript" src="/socket.io/socket.io.js"></script>
+  <!-- Подключаем API Telegram Web App для интеграции с Telegram -->
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <!-- Подключаем иконку для вкладки браузера -->
+  <link href="/images/favicon.ico" rel="icon" type="image/ico">
+  <!-- Указываем кодировку документа -->
+  <meta charset="utf-8">
+  <!-- Настраиваем viewport для адаптивного отображения на мобильных устройствах -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Задаем заголовок страницы -->
+  <title>Flappy Coin</title>
+  <!-- Подключаем основные стили приложения -->
+  <link href="stylesheets/app.css" media="screen" rel="stylesheet" type="text/css">
+  <!-- Подключаем стили для игры Flappy Coin -->
+  <link href="stylesheets/flappy.css" media="screen" rel="stylesheet" type="text/css">
+  <!-- Подключаем скрипт игры -->
+  <script src="javascripts/game.js"></script>
+  <!-- Подключаем модульный загрузчик с точкой входа в игровой движок -->
+  <script data-main="javascripts/game/gameEngine" src="javascripts/lib/require.min.js"></script>
+</head>
+<body>
+  <!-- Основной контейнер игры, скрыт по умолчанию -->
+  <div id="gameScreen">
+    <!-- Информационная панель для подсказок -->
+    <div id="gs-info-panel">
+      To fly, press your <strong>space bar</strong>!
+    </div>
+    
+    <!-- Канвас для отрисовки игры -->
+    <canvas id="gs-canvas" width="900" height="768"></canvas>
+    
+    <!-- Панель загрузки игры -->
+    <div id="gs-loader" class="inGamePanel overlay">
+      <h2 id="gs-loader-text">Welcome to Birds.js!</h2>
+    </div>
+    
+    <!-- Панель логина в игре -->
+    <div id="gs-login" class="inGamePanel">
+      <h1>Flappy Coin</h1>
+    </div>
+    
+    <!-- Панель с результатами игры -->
+    <div id="gs-ranking" class="inGamePanel">
+      <h1 id="gs-ranking-title">Game Over</h1>
+      <div id="gs-ranking-box">
+        <div class="gs-ranking-panel">
+          <h3>Medal</h3>
+          <div class="gs-ranking-medal"></div>
+          <strong id="gs-ranking-pos" class="gs-ranking-text gs-ranking-text-mini">- / -</strong>
+        </div>
+        <div class="gs-ranking-panel">
+          <h3>Score</h3>
+          <strong id="gs-ranking-score" class="gs-ranking-text">-</strong>
+          <h3>Best</h3>
+          <strong id="gs-ranking-best" class="gs-ranking-text">-</strong>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Панель с рекордами -->
+    <div id="gs-highscores" class="inGamePanel">
+      <h1 id="gs-highscores-title">High Scores</h1>
+      <div id="gs-highscores-box">
+        <ul id="gs-highscores-scores"></ul>
+      </div>
+    </div>
+    
+    <!-- Панель с сообщением об ошибке -->
+    <div id="gs-error" class="inGamePanel">
+      <h1 id="gs-error-title">Ouuuuuups :(</h1>
+      <h2 id="gs-error-message">Something goes wrong. Please reload the page</h2>
+    </div>
+  </div>
+
+  <!-- Страница логина -->
+  <div class="login-page">
+    <div class="login-container">
+      <input id="login-name" type="text" maxlength="8" value="Player_1">
+      <input id="login-button" type="button" value="Login">
+    </div>
+  </div>
+
+  <!-- Страница главного меню -->
+  <div class="mainMenu-page">
+    <!-- Заголовок вверху экрана -->
+    <div class="mainMenu-title">
+      <h1>Flappy Coin</h1>
+    </div>
+    <!-- Контейнер для птички - ВЫШЕ кнопки PLAY -->
+    <div class="bird-container">
+      <div id="gs-loader-anim-box">
+        <div id="gs-loader-anim-bird"></div>
+      </div>
+    </div>
+    <!-- Контейнер для кнопки PLAY - НИЖЕ птички -->
+    <div class="play-button-container">
+      <input id="play-button" type="button" value="PLAY">
+    </div>
+  </div>
+</body>
+</html> 

@@ -1,0 +1,206 @@
+/* Стили для страницы логина - черный фон, центрирование контента */
+.login-page {
+  position: fixed; /* Фиксированное позиционирование на весь экран */
+  top: 0; /* отступ от верхнего края экрана */
+  left: 0; /* отступ от левого края экрана */
+  width: 100%; /* ширина экрана */
+  height: 100%; /* высота экрана */
+  background-color:rgb(0, 0, 0); /* Черный фон */
+  display: flex; /* Используем flex для центрирования */
+  flex-direction: column; /* Вертикальное расположение элементов */ 
+  justify-content: center; /* Центрирование по вертикали */
+  align-items: center; /* Центрирование по горизонтали */
+  z-index: 1000; /* Высокий z-index чтобы быть поверх других элементов */
+}
+
+/* Стили для главного меню - фоновое изображение, скрыто по умолчанию */
+.mainMenu-page {
+  position: fixed; /* Фиксированное позиционирование на весь экран */
+  top: 0; /* отступ от верхнего края экрана */
+  left: 0; /* отступ от левого края экрана */
+  width: 100%; /* ширина экрана */
+  height: 100%; /* высота экрана */
+  background-color: #000; /* Черный фон */
+  background-image: url('/images/main-menu.png'); /* Фоновое изображение */
+  background-size: cover; /* Растягивание фона на весь экран */
+  background-position: center; /* Центрирование фона */
+  display: none; /* По умолчанию скрыто */
+  flex-direction: column; /* Вертикальное расположение элементов */
+  align-items: center; /* Центрирование по горизонтали */
+  z-index: 1000; /* Высокий z-index чтобы быть поверх других элементов */
+}
+
+/* Игровой экран скрыт по умолчанию */
+#gameScreen {
+  display: none; /* По умолчанию скрыто */  
+}
+
+/* Контейнер для формы входа - расположен внизу экрана */
+.login-container {
+  position: absolute; /* Абсолютное позиционирование */
+  bottom: 20%; /* 20% от нижнего края экрана */
+  padding: 2rem; /* Отступы внутри контейнера */
+  width: 100%; /* Ширина контейнера */
+  max-width: 400px; /* Максимальная ширина контейнера */
+  text-align: center; /* Центрирование текста */
+  display: flex; /* Используем flex для вертикального расположения элементов */
+  flex-direction: column; /* Вертикальное расположение элементов */
+  align-items: center; /* Центрирование по горизонтали */
+}
+
+/* Заголовок главного меню - расположен вверху экрана */
+.mainMenu-title {
+  position: absolute; /* Абсолютное позиционирование */ 
+  top: 15%; /* 15% от верхнего края экрана */
+  width: 100%; /* Ширина контейнера */
+  text-align: center; /* Центрирование текста */
+}
+
+/* Стиль для текста заголовка */
+.mainMenu-title h1 {
+  color: white; /* Белый цвет текста */
+  font-size: 32px;
+  margin: 0;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); /* Тень для лучшей читаемости */
+}
+
+/* Контейнер для кнопки PLAY - расположен в нижней части экрана */
+.play-button-container {
+  position: absolute; /* Абсолютное позиционирование */
+  bottom: 20%; /* Располагаем кнопку внизу, 20% от нижнего края экрана */
+  width: 100%; /* Ширина контейнера */
+  display: flex; /* Используем flex для вертикального расположения элементов */
+  justify-content: center; /* Центрируем по горизонтали */
+}
+
+/* Контейнер для птички - располагаем выше кнопки PLAY */
+.bird-container {
+  position: absolute; /* Абсолютное позиционирование */ 
+  top: 10%; /* Располагаем птичку выше, 40% от верхнего края экрана */
+  width: 100%; /* Ширина контейнера */
+  display: flex; /* Используем flex для вертикального расположения элементов */
+  justify-content: center; /* Центрируем по горизонтали */
+}
+
+/* Стили для поля ввода имени пользователя */
+#login-name {
+  width: 150px; /* Ширина поля ввода */
+  padding: 12px; /* Отступы внутри поля ввода */
+  background:rgba(255, 255, 255, 0); /* Прозрачный фон */
+  margin-bottom: 1rem; /* Отступ снизу */
+  border: 2px solid #333; /* Синяя граница */
+  background: #111; /* Черный фон */
+  color: white; /* Белый текст */
+  border-color: rgb(0, 162, 255); /* Синяя граница */
+  border-radius: 5px; /* Скругление углов */
+  font-size: 20px; /* Размер шрифта */
+  box-sizing: border-box; /* Учитываем границы и отступы */
+}
+
+/* Общие стили для кнопок Login и PLAY */
+#login-button, #play-button {
+  width: 150px; /* Ширина кнопки */
+  padding: 12px; /* Отступы внутри кнопки */
+  background:rgb(0, 162, 255); /* Синий фон кнопки */
+  color: white; /* Белый текст */
+  border: none; /* Убираем границу */
+  border-color: rgb(0, 162, 255); /* Синяя граница */
+  border-radius: 5px; /* Скругление углов */
+  cursor: pointer; /* Курсор-указатель при наведении */
+  font-size: 20px; /* Размер шрифта */
+  box-sizing: border-box; /* Учитываем границы и отступы */     
+}
+
+/* Стили при наведении на кнопки */
+#login-button:hover, #play-button:hover {
+  background: #444; /* Темно-серый фон при наведении */
+}
+
+/* Стили для контейнера анимации птички */
+#gs-loader-anim-box {
+  display: block;
+  margin: 0 auto; /* Центрирование блока */
+}
+
+/* Дополнительные стили для игрового экрана */
+.inGamePanel {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  color: white;
+  z-index: 900;
+}
+
+.overlay {
+  background-color: rgba(0, 0, 0, 0.7);
+}
+
+/* Стили для информационной панели */
+#gs-info-panel {
+  position: absolute;
+  top: 20px;
+  left: 0;
+  width: 100%;
+  text-align: center;
+  color: white;
+  font-size: 18px;
+  z-index: 800;
+}
+
+/* Стили для панелей с результатами */
+#gs-ranking-box, #gs-highscores-box {
+  background: rgba(0, 0, 0, 0.7);
+  border-radius: 10px;
+  padding: 20px;
+  margin-top: 20px;
+  width: 80%;
+  max-width: 400px;
+}
+
+.gs-ranking-panel {
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+.gs-ranking-text {
+  display: block;
+  font-size: 24px;
+  margin: 10px 0;
+}
+
+.gs-ranking-text-mini {
+  font-size: 18px;
+}
+
+/* Стили для медали */
+.gs-ranking-medal {
+  width: 100px;
+  height: 100px;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  margin: 0 auto;
+}
+
+/* Стили для списка рекордов */
+#gs-highscores-scores {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+#gs-highscores-scores li {
+  padding: 8px;
+  border-bottom: 1px solid #333;
+  display: flex;
+  justify-content: space-between;
+}
+
+/* Стили для экрана ошибки */
+#gs-error {
+  background-color: rgba(200, 0, 0, 0.8);
+} 
